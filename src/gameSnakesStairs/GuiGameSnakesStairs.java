@@ -88,6 +88,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		contenedorPpal.add(fondo, BorderLayout.CENTER);
 		
 		JOptionPane.showMessageDialog(null, "Hola");
+		System.out.print("Hola");
 		
 	}
 
