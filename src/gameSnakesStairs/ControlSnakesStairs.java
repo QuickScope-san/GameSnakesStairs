@@ -59,12 +59,6 @@ import java.util.ArrayList;
 		matriz.get(4).set(6,new Coordenadas(2,4));
 		matriz.get(3).set(0,new Coordenadas(0,3));
 		matriz.get(2).set(7,new Coordenadas(0,9));
-		
-		
-			  
-				  System.out.println(matriz);
-			   
-		
 	}
 	
 	public class Coordenadas
@@ -80,6 +74,7 @@ import java.util.ArrayList;
 
 	    public Integer row()   { return row; }
 	    public Integer col() { return col; }
+	    public boolean estaVacio() { return row == 0 && col == 0; } //no hay serpientes o escaleras
 	}
 	
 	public void jugar() {
@@ -97,6 +92,7 @@ import java.util.ArrayList;
 		if(col <= -1) {
 			col = -1; 
 		}
+		movimientoSerpienteOEscalera(row,col,turno);
 		moverseAtras(row,col,dado);
 		turno++;
 		if(turno == 3) {
@@ -106,6 +102,12 @@ import java.util.ArrayList;
 		System.out.println(dado);
 		System.out.println(row);
 		System.out.println(col);
+	}
+	
+	public void movimientoSerpienteOEscalera(Integer row, Integer col, Integer turno) {
+		if(!matriz.get(jugadores.get(turno).getRow()).get(jugadores.get(turno).getCol()).estaVacio()){
+			jugadores.get(turno).desplazarJugador(row, col);
+		}
 	}
 	
 	public void moverseAtras(Integer row, Integer col, Integer dado) {
@@ -120,8 +122,5 @@ import java.util.ArrayList;
 		}
 		return false;
 	}
-	
-	public void subirEscaleras() {
-		
-	}
+
 }
