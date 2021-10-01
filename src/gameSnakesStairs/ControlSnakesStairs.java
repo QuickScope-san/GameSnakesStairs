@@ -1,12 +1,20 @@
 package gameSnakesStairs;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 	public class ControlSnakesStairs {
 		private Dado resultadoDado;
 		private ArrayList<Jugador> jugadores;
 		private ArrayList<ArrayList<Coordenadas>> matriz;
 		private int turno;
+		
+		private Lock bloqueo = new ReentrantLock(); //manejo de sincronizacion
+		private Condition esperarTurno = bloqueo.newCondition(); //manejo de sincronizacion	
 	
 	public ControlSnakesStairs() {
 		jugadores = new ArrayList<Jugador>();
@@ -79,6 +87,7 @@ import java.util.ArrayList;
 	
 	public void jugar() {
 		int dado = 0,row=0,col=0;
+		iniciarJugadoresSimulados();
 		jugadores.get(turno);
 		System.out.println(jugadores.size());
 		dado = resultadoDado.getCaraDado();
@@ -104,6 +113,39 @@ import java.util.ArrayList;
 		System.out.println(col);
 	}
 	
+	private void iniciarJugadoresSimulados() {
+		// TODO Auto-generated method stub
+		    turno=1;
+		  //crear los hilos e iniciarlos
+		  
+		  ExecutorService ejecutorSubprocesos = Executors.newCachedThreadPool();
+		  ejecutorSubprocesos.execute(jugadores.get(1)); 
+		  ejecutorSubprocesos.execute(jugadores.get(2));
+		  
+		  ejecutorSubprocesos.shutdown();
+	}
+	
+	public void turnos() {
+		//bloquear la clase
+		bloqueo.lock();
+		try {
+			//validar condición de ejecucion para el hilo
+			while(turno != 1 || turno != 2) { //turno= 1 le toca a jugador 1 y turno=2 le toca a jugador 2
+				//dormir al jugador porque no es su turno
+				esperarTurno.await();	  
+			}
+			//ejecutar tarea, variar condición de ejecucion, desbloquear el objeto
+			turno++;
+			esperarTurno.signalAll();		 
+
+		}catch(InterruptedException e) {
+			e.printStackTrace();
+			System.out.println("aqui");
+		}finally {
+			bloqueo.unlock();
+		} 
+	}
+	
 	public void movimientoSerpienteOEscalera(Integer row, Integer col, Integer turno) {
 		if(!matriz.get(jugadores.get(turno).getRow()).get(jugadores.get(turno).getCol()).estaVacio()){
 			jugadores.get(turno).desplazarJugador(row, col);
@@ -122,5 +164,6 @@ import java.util.ArrayList;
 		}
 		return false;
 	}
+	
 
 }
