@@ -64,6 +64,4 @@ public class Dado extends JLabel {
 		
 	}
 	
-	
-
 }
