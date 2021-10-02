@@ -10,8 +10,8 @@ public class Tablero extends JButton {
 	//Declaracion de objeto encargado de guardar la porcion de la imagen.
 	private ImageIcon imagen;
 	
-	//Declaracion del tamano de la porcion de imagen (fila, columna) de la matriz.
-	private int tamanoPorcion;
+	//Declaracion e inicializacion del tamano de la porcion de imagen (fila, columna) de la matriz.
+	private static int porcionImagen = 0;
 	
 	//Declaracion de la variable encargada de saber en que posicion con respecto a la fila de la matriz esta esa porcion de imagen.
 	private int fila;
@@ -24,10 +24,7 @@ public class Tablero extends JButton {
 	
 	public Tablero(ImageIcon imagen, int fila, int columna, int idImagen) {
 		
-		//Creacion del tamano de la porcion de imagen (fila, columna) de la matriz.
-		tamanoPorcion = 0;
-		
-		Dimension tamanoCelda = new Dimension(tamanoPorcion, tamanoPorcion);
+		Dimension tamanoCelda = new Dimension(porcionImagen, porcionImagen);
 		
 		//Creacion declaracion de la variable encargada de saber en que posicion con respecto a la fila de la matriz esta esa porcion de imagen.
 		this.fila = fila;
@@ -56,9 +53,33 @@ public class Tablero extends JButton {
 	
 	public static void seteaTamanoFichas(int tamanoPorcion) {
 		
-		tamanoPorcion = tamanoPorcion;
+		//Creacion de la variable que determina la proporcion del segmento de imagen en la matriz.
+		porcionImagen = tamanoPorcion;
 		
 		
 	}
+
+	public int getFila() {
+		
+		//Retorna el valor de la fila en donde se encuentra esa porcion de imagen.
+		return fila;
+		
+	}
+
+	public int getColumna() {
+		
+		//Retorna el valor de la columna en donde se encuentra esa porcion de imagen.
+		return columna;
+		
+	}
+
+	public int getIdImagen() {
+		
+		//Retorna el valor del identifcador en donde se encuentra esa porcion de imagen.
+		return idImagen;
+		
+	}
+	
+	
 
 }

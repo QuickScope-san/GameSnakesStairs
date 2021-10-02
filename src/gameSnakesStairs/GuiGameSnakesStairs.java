@@ -6,13 +6,19 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
@@ -25,24 +31,27 @@ import javax.tools.JavaCompiler;
 
 public class GuiGameSnakesStairs extends JFrame {
 	
-	//Declaracion de constantes.
-	private final static float TAMANOCELDA = 89.5f;
-	private final static int TAMANOMATRIZ = 10;
+	//Declaracion e inicializacion del objeto buffer encargado de leer la imagen del juego en cuestion.
+	private BufferedImage segmentImage;
 	
-	private final static String FONDOGAME = "/imagenes/Fondo.png";
-	private final static String TABLERO = "/imagenes/Tablero.png";
-	private final static String ICONTITULO = "/imagenes/battle.png";
-	private final static String FIRSTPLAYER = "/imagenes/players.png";
-	private final static String SECONDPLAYER = "/imagenes/gamer.png";
-	private final static String THIRDPLAYER = "/imagenes/gamerboy.png";
-	private final static String BETAPLAYER = "/imagenes/hacker1.png";
-	private final static String ALFAPLAYER = "/imagenes/hacker2.png";
-	private final static String PLAYER = "/imagenes/UsuarioGrande.png";
-	private final static String MACHINE1 = "/imagenes/RobotGrande1.png";
-	private final static String MACHINE2 = "/imagenes/RobotGrande2.png";
+	//Declaracion de constantes.
+	private static final int TAMANOCELDA = 50;
+	private static final int TAMANOMATRIZ = 10;
+	
+	private static final String FONDOGAME = "/imagenes/Fondo.png";
+	public static final String TABLERO = "src/imagenes/TableroMinimizado.png";
+	private static final String ICONTITULO = "/imagenes/battle.png";
+	private static final String FIRSTPLAYER = "/imagenes/players.png";
+	private static final String SECONDPLAYER = "/imagenes/gamer.png";
+	private static final String THIRDPLAYER = "/imagenes/gamerboy.png";
+	private static final String BETAPLAYER = "/imagenes/hacker1.png";
+	private static final String ALFAPLAYER = "/imagenes/hacker2.png";
+	private static final String PLAYER = "/imagenes/UsuarioGrande.png";
+	private static final String MACHINE1 = "/imagenes/RobotGrande1.png";
+	private static final String MACHINE2 = "/imagenes/RobotGrande2.png";
 	
 	//Declaracion de JButton's.
-	private JButton bIniciar, bSalir, bDado;
+	private JButton bIniciar, bSalir;
 	
 	//Declaracion de JLabel's.
 	private JLabel lTitulo, lBetaPlayer, lAlfaPlayer, lPlayer1a, lPlayer1b, lPlayer2, lPlayer3, lJugador, lMaquina1, lMaquina2; 
@@ -51,7 +60,7 @@ public class GuiGameSnakesStairs extends JFrame {
 	private JPanel pTablero, pJugadores, pDado;
 	
 	//Declaracion de Paneles auxiliares.
-	private JPanel pAuxiliarTitulo, pAuxiliarTablero, pAuxiliarJugadores, pAuxiliarDado, pAuxiliarTitulo2, pAuxiliarTablero2, pAuxiliarJugadores2, pAuxiliarDado2;
+	private JPanel pAuxiliarTitulo, pAuxiliarTablero, pAuxiliarJugadores, pAuxiliarDado, pAuxiliarTitulo2;
 	
 	//Declaracion de estilo de bordes.
 	private TitledBorder tbTitulo, tbTablero, tbInfoPartida, tbPlayer, tbMachine1, tbMachine2, tbDado;
@@ -61,6 +70,7 @@ public class GuiGameSnakesStairs extends JFrame {
 	
 	//Declaracion de la comuniacion con las otras clases.
 	private Tablero tableroJuego[][];
+	private Dado dado;
 	
 	//Declaracion del objeto que contiene el fondo del juego.
 	private FondoJuego fondo;
@@ -74,27 +84,39 @@ public class GuiGameSnakesStairs extends JFrame {
 	
 	public GuiGameSnakesStairs() {
 		
-		//Instanciamiento de los objetos.
+		segmentImage = null;
 		
-		initGuiGameSnakesStairs();
-		
-		//Creacion de ventana.
-		
-		this.setVisible(true);
-		this.setResizable(false);
-		this.setTitle("S E R P I E N T E S  Y  E S C A L E R A S");
-		this.setSize(1200,700);
-		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		try {
+			
+			segmentImage = ImageIO.read(new File(TABLERO));
+			Tablero.seteaTamanoFichas(TAMANOCELDA);
+			
+			//Instanciamiento de los objetos.
+			initGuiGameSnakesStairs();
+			
+			//Creacion de ventana.
+			this.setVisible(true);
+			this.setResizable(false);
+			this.setTitle("S E R P I E N T E S  Y  E S C A L E R A S");
+			this.setSize(1200,700);
+			this.setLocationRelativeTo(null);
+			this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			
+		} catch (IOException e) {
+			
+			//Mensaje de ruta no encontrada.
+			JOptionPane.showMessageDialog(null, "No se encuentra la ruta del archivo");
+			e.printStackTrace();
+			
+		}
 		
 	}
 	
-	public void initGuiGameSnakesStairs() {
+	private void initGuiGameSnakesStairs() {
 		
 		//Creacion de JButton's.
 		bIniciar = new JButton();
 		bSalir = new JButton();
-		bDado = new JButton();
 		
 		//Creacion de JLabel's.
 		lTitulo = new JLabel();
@@ -120,39 +142,41 @@ public class GuiGameSnakesStairs extends JFrame {
 		pAuxiliarDado = new JPanel();
 		
 		pAuxiliarTitulo2 = new JPanel();
-		pAuxiliarTablero2 = new JPanel();
-		pAuxiliarJugadores2 = new JPanel();
-		pAuxiliarDado2 = new JPanel();
 		
 		//Creacion de estilos de borders.
 		tbTitulo = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Challenge Accepted?",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20), new Color(255, 255, 255));
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
 		
-		tbTablero = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Game Zone",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 15), new Color(255, 255, 255));
+		tbTablero = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 88), 5), "Game Zone",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
 		
-		tbInfoPartida = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Interactive Zone",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 15), new Color(255, 255, 255));
+		tbInfoPartida = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 88), 5), "Interactive Zone",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
 		
-		tbPlayer = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Human",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 15), new Color(255, 255, 255));
+		tbPlayer = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 246), 5), "Human",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
 		
-		tbMachine1 = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Robot 1",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 15), new Color(255, 255, 255));
+		tbMachine1 = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 246), 5), "Robot 1",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
 		
-		tbMachine2 = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (255, 255, 255), 5), "Robot 2",
-				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 15), new Color(255, 255, 255));
+		tbMachine2 = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 246), 5), "Robot 2",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 23), new Color(255, 255, 255));
+		
+		tbDado = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 88), 5));
 		
 		//Creacion de Esuchas.
 		escucha = new Escuchas();
 		
 		//Asignacion de escuchas a componentes.
-		bDado.addActionListener(escucha);
-		bIniciar.addActionListener(escucha);
-		bSalir.addActionListener(escucha);
+		bIniciar.addMouseListener(escucha);
+		bSalir.addMouseListener(escucha);
 		
 		//Creacion de la comuniacion con las otras clases.
 		tableroJuego = new Tablero[TAMANOMATRIZ][TAMANOMATRIZ];
+		dado = new Dado();
+		
+		//Asignacion de escuchas a objetos que comunican con otras clases.
+		dado.addMouseListener(escucha);
 		
 		//Creacion del objeto que contiene el fondo el juego.
 		fondo = new FondoJuego();
@@ -170,7 +194,19 @@ public class GuiGameSnakesStairs extends JFrame {
 		pAuxiliarTitulo.setLayout(new FlowLayout());
 		pAuxiliarTitulo2.setLayout(new FlowLayout());
 		
-		pTablero.setLayout(new BorderLayout());
+		pTablero.setLayout(new GridLayout(TAMANOMATRIZ, TAMANOMATRIZ));
+		pTablero.setOpaque(false);
+		pTablero.setPreferredSize(new Dimension(501, 500));
+		pAuxiliarTablero.setLayout(new FlowLayout());
+		pAuxiliarTablero.setPreferredSize(new Dimension (501, 500));
+		
+		pJugadores.setLayout(new FlowLayout());
+		pJugadores.setOpaque(false);
+		pAuxiliarJugadores.setLayout(new FlowLayout());
+		
+		pDado.setLayout(new FlowLayout());
+		pDado.setOpaque(false);
+		pAuxiliarDado.setLayout(new FlowLayout());
 		
 		//Modificaciones/Personalizaciones de componentes.
 		lTitulo.setIcon(new ImageIcon(getClass().getResource(ICONTITULO)));
@@ -197,7 +233,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lJugador.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lJugador.setForeground(new Color(255, 255, 255));
 		lJugador.setBackground(new Color(0, 0, 0, 230));
-		lJugador.setPreferredSize(new Dimension(375, 95));
+		lJugador.setPreferredSize(new Dimension(145, 200));
 		lJugador.setBorder(tbPlayer);
 		lJugador.setOpaque(true);
 		
@@ -208,7 +244,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lMaquina1.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lMaquina1.setForeground(new Color(255, 255, 255));
 		lMaquina1.setBackground(new Color(0, 0, 0, 230));
-		lMaquina1.setPreferredSize(new Dimension(375, 95));
+		lMaquina1.setPreferredSize(new Dimension(145, 200));
 		lMaquina1.setBorder(tbMachine1);
 		lMaquina1.setOpaque(true);
 		
@@ -219,7 +255,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lMaquina2.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lMaquina2.setForeground(new Color(255, 255, 255));
 		lMaquina2.setBackground(new Color(0, 0, 0, 230));
-		lMaquina2.setPreferredSize(new Dimension(375, 95));
+		lMaquina2.setPreferredSize(new Dimension(145, 200));
 		lMaquina2.setBorder(tbMachine2);
 		lMaquina2.setOpaque(true);
 		
@@ -227,20 +263,18 @@ public class GuiGameSnakesStairs extends JFrame {
 		pAuxiliarTitulo.setOpaque(false);
 		pAuxiliarTablero.setOpaque(false);
 		pAuxiliarJugadores.setOpaque(false);
-		pAuxiliarDado.setOpaque(false);
+		pAuxiliarDado.setOpaque(true);
 		
 		pAuxiliarTitulo2.setOpaque(true);
-		pAuxiliarTablero2.setOpaque(false);
-		pAuxiliarJugadores2.setOpaque(false);
-		pAuxiliarDado2.setOpaque(false);
 		
-		pAuxiliarTitulo.setPreferredSize(new Dimension(390, 135));
+		pAuxiliarTitulo.setPreferredSize(new Dimension(395, 140));
 		pAuxiliarTitulo.setBorder(tbTitulo);
 		
-		pAuxiliarTitulo2.setPreferredSize(new Dimension(700, 150));
+		pAuxiliarTitulo2.setBorder(BorderFactory.createLineBorder(new Color(165, 28, 249), 5));
+		pAuxiliarTitulo2.setPreferredSize(new Dimension(700, 155));
 		pAuxiliarTitulo2.setBackground(new Color(0, 0, 0, 240));
 		
-		//Agregacion de componentes a paneles auxiliares
+		//Agregacion de componentes a paneles auxiliares.
 		pAuxiliarTitulo.add(lTitulo);
 		
 		pAuxiliarTitulo2.add(lBetaPlayer);
@@ -253,16 +287,72 @@ public class GuiGameSnakesStairs extends JFrame {
 		
 		//Agregacion de componentes/paneles a paneles mas grandes.
 		fondo.add(pAuxiliarTitulo2, BorderLayout.NORTH);
-		//fondo.add(pTablero, BorderLayout.CENTER);
 		contenedorPpal.add(fondo, BorderLayout.CENTER);
 		
 		seccionaTablero();
+		
+		//Agregacion de otros componentes despues del tablero de juego.
+		pJugadores.add(lJugador); pJugadores.add(lMaquina1); pJugadores.add(lMaquina2);
+		pJugadores.setBorder(tbInfoPartida);
+		
+		pAuxiliarJugadores.add(pJugadores);
+		
+		pDado.add(dado);
+		pDado.setBorder(tbDado);
+		pAuxiliarDado.add(pDado);
+		pAuxiliarDado.setPreferredSize(new Dimension(470, 240));
+		pAuxiliarDado.setBackground(new Color(0, 0, 0, 240));
+		pAuxiliarDado.setBorder(tbDado);
+		
+		pAuxiliarJugadores.add(pAuxiliarDado);
+		pAuxiliarJugadores.setPreferredSize(new Dimension(475, 250));
+		
+		fondo.add(pAuxiliarJugadores, BorderLayout.EAST);
 		
 	}
 	
 	private void seccionaTablero() {
 		
+		//Variable local usada para asignar un id a cada seccion de imagen.
+		int id = 0;
 		
+		//Variables locales usadas para determinar las dimensiones del segmento de imagen.
+		int posX = 0;
+		int posY = 0;
+		
+		//Variable local usada para extraer el fragmento de imagen en cuestion.
+		BufferedImage subImage = null;
+		
+		//Variable local usada para guardar el contenido de la sub-imagen almacenada en la variable local subImage.
+		ImageIcon porcionImagen = null;
+		
+		for (int i = 0; i < TAMANOMATRIZ; i++) {
+			
+			for (int j = 0; j < TAMANOMATRIZ; j++) {
+				
+				posX = j * TAMANOCELDA;
+				posY = i * TAMANOCELDA;
+				
+				subImage = segmentImage.getSubimage(posX, posY, TAMANOCELDA, TAMANOCELDA);
+				
+				porcionImagen = new ImageIcon(subImage);
+				
+				tableroJuego[i][j] = new Tablero(porcionImagen, i, j, id);
+				tableroJuego[i][j].setContentAreaFilled(false);
+				tableroJuego[i][j].setBorder(null);
+				
+				pTablero.add(tableroJuego[i][j]);
+				
+				id++;
+				
+			}
+			
+		}
+		
+		pTablero.setBorder(tbTablero);
+		pAuxiliarTablero.add(pTablero);
+		
+		fondo.add(pAuxiliarTablero, BorderLayout.CENTER);
 		
 	}
 
@@ -304,16 +394,18 @@ public class GuiGameSnakesStairs extends JFrame {
 		
 	}
 	
-	private class Escuchas implements ActionListener {
+	private class Escuchas extends MouseAdapter {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void mouseClicked(MouseEvent e) {
 			
-			
-			
+			if(e.getSource() == dado) {
+				
+				dado.seteaImagen();
+				
+			}
+		
 		}
-		
-		
 		
 	}
 
