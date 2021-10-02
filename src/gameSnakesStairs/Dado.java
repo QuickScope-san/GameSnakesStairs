@@ -58,7 +58,7 @@ public class Dado extends JLabel {
 		this.setIcon(iDado);
 	}
 
-	public int getNumeroDado() {
+	public int getCaraDado() {
 		
 		return numeroDado;
 		
