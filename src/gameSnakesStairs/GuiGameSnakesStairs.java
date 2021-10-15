@@ -63,7 +63,7 @@ public class GuiGameSnakesStairs extends JFrame {
 	private JPanel pAuxiliarTitulo, pAuxiliarTablero, pAuxiliarJugadores, pAuxiliarDado, pAuxiliarTitulo2;
 	
 	//Declaracion de estilo de bordes.
-	private TitledBorder tbTitulo, tbTablero, tbInfoPartida, tbPlayer, tbMachine1, tbMachine2, tbDado;
+	private TitledBorder tbTitulo, tbTablero, tbInfoPartida, tbPlayer, tbMachine1, tbMachine2, tbDado, tbPlayerTurn, tbMachine1Turn, tbMachine2Turn;
 	
 	//Declaracion de Esuchas.
 	private Escuchas escucha;
@@ -71,6 +71,7 @@ public class GuiGameSnakesStairs extends JFrame {
 	//Declaracion de la comuniacion con las otras clases.
 	private Tablero tableroJuego[][];
 	private Dado dado;
+	private ControlSnakesStairs logica;
 	
 	//Declaracion del objeto que contiene el fondo del juego.
 	private FondoJuego fondo;
@@ -164,6 +165,15 @@ public class GuiGameSnakesStairs extends JFrame {
 		
 		tbDado = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (28, 249, 88), 5));
 		
+		tbPlayerTurn = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (250, 18, 7), 5), "Your Turn",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 21), new Color(255, 255, 255));
+		
+		tbMachine1Turn = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (250, 18, 7), 5), "Machine 1 Turn",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 21), new Color(255, 255, 255));
+		
+		tbMachine2Turn = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color (250, 18, 7), 5), "Machine 2 Turn",
+				TitledBorder.CENTER, TitledBorder.TOP, new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 21), new Color(255, 255, 255));
+		
 		//Creacion de Esuchas.
 		escucha = new Escuchas();
 		
@@ -174,6 +184,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		//Creacion de la comuniacion con las otras clases.
 		tableroJuego = new Tablero[TAMANOMATRIZ][TAMANOMATRIZ];
 		dado = new Dado();
+		logica = new ControlSnakesStairs();
 		
 		//Asignacion de escuchas a objetos que comunican con otras clases.
 		dado.addMouseListener(escucha);
@@ -232,7 +243,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lJugador.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 		lJugador.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lJugador.setForeground(new Color(255, 255, 255));
-		lJugador.setBackground(new Color(0, 0, 0, 230));
+		lJugador.setBackground(new Color(0, 0, 0));
 		lJugador.setPreferredSize(new Dimension(145, 200));
 		lJugador.setBorder(tbPlayer);
 		lJugador.setOpaque(true);
@@ -243,7 +254,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lMaquina1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 		lMaquina1.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lMaquina1.setForeground(new Color(255, 255, 255));
-		lMaquina1.setBackground(new Color(0, 0, 0, 230));
+		lMaquina1.setBackground(new Color(0, 0, 0));
 		lMaquina1.setPreferredSize(new Dimension(145, 200));
 		lMaquina1.setBorder(tbMachine1);
 		lMaquina1.setOpaque(true);
@@ -254,7 +265,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		lMaquina2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 		lMaquina2.setFont(new Font(Font.SERIF, Font.BOLD+Font.ITALIC, 20));
 		lMaquina2.setForeground(new Color(255, 255, 255));
-		lMaquina2.setBackground(new Color(0, 0, 0, 230));
+		lMaquina2.setBackground(new Color(0, 0, 0));
 		lMaquina2.setPreferredSize(new Dimension(145, 200));
 		lMaquina2.setBorder(tbMachine2);
 		lMaquina2.setOpaque(true);
@@ -301,7 +312,7 @@ public class GuiGameSnakesStairs extends JFrame {
 		pDado.setBorder(tbDado);
 		pAuxiliarDado.add(pDado);
 		pAuxiliarDado.setPreferredSize(new Dimension(470, 240));
-		pAuxiliarDado.setBackground(new Color(0, 0, 0, 240));
+		pAuxiliarDado.setBackground(new Color(0, 0, 0));
 		pAuxiliarDado.setBorder(tbDado);
 		
 		pAuxiliarJugadores.add(pAuxiliarDado);
@@ -395,13 +406,55 @@ public class GuiGameSnakesStairs extends JFrame {
 	}
 	
 	private class Escuchas extends MouseAdapter {
-
+		
+		//private int turno = 0;
+		private ImageIcon imagenJugador;
+		private Jugador jugador;
+		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			
 			if(e.getSource() == dado) {
 				
 				dado.seteaImagen();
+				
+				jugador = logica.getPlayer();
+				
+				System.out.println(logica.getTurno());
+				
+				imagenJugador = new ImageIcon("src/imagenes/"+ logica.getTurno() +".jpg");
+				jugador.setIcon(imagenJugador);
+				
+				if(logica.getTurno() == 0) {
+					
+					lJugador.setBorder(tbPlayerTurn);
+					lMaquina1.setBorder(tbMachine1);
+					lMaquina2.setBorder(tbMachine2);
+					
+				}/* else if(logica.getTurno() == 1) {
+					
+					lMaquina1.setBorder(tbMachine1Turn);
+					lJugador.setBorder(tbPlayer);
+					lMaquina2.setBorder(tbMachine2);
+					
+				} else if(logica.getTurno() == 2) {
+					
+					lMaquina2.setBorder(tbMachine2Turn);
+					lMaquina1.setBorder(tbMachine1);
+					lJugador.setBorder(tbPlayer);
+					
+				}*/
+				
+				logica.jugar(dado.getCaraDado());
+				
+				tableroJuego[logica.getRow()][logica.getCol()].add(jugador);
+				
+				//System.out.println(""+ logica.getRow() +" " +logica.getCol());
+				System.out.println(dado.getCaraDado());
+				
+				//turno = logica.getTurno();
+				
+				
 				
 			}
 		
